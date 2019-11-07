@@ -1,21 +1,82 @@
 version: '3'
+
+networks:
+  akaunting:
+
+volumes:
+  mysqldata:
+# pgsqldata:
+
 services:
+  nginx:
+    image: nginx:stable-alpine
+    container_name: nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./:/var/www/html
+      - ./nginx.example.com.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - php
+      - mysql
+    networks:
+      - akaunting
+
   mysql:
     image: mysql:5
+    container_name: mysql
+    restart: unless-stopped
+    volumes:
+      - mysqldata:/var/lib/mysql
+    tty: true
     ports:
-      - 3306:3306
+      - "3306:3306"
     environment:
       MYSQL_ROOT_PASSWORD: akaunting_root_password
       MYSQL_DATABASE: akaunting_db
       MYSQL_USER: akaunting_admin
       MYSQL_PASSWORD: akaunting_password
-  web:
-    image: akaunting
+      SERVICE_TAGS: dev
+      SERVICE_NAME: mysql
+    networks:
+      - akaunting
+
+#  pgsql:
+#    image: postgres:9.6-alpine
+#    volumes:
+#      - pgsqldata:/var/lib/postgresql/data
+#    environment:
+#      - "POSTGRES_DB=akaunting_db"
+#      - "POSTGRES_USER=akaunting_admin"
+#      - "POSTGRES_PASSWORD=akaunting_password"
+#    ports:
+#        - "5432:5432"
+
+  php:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: php
     volumes:
       - ./:/var/www/html
     ports:
-      - 8080:80
-    environment:
-      APP_DEBUG: "true"
-    links:
+      - "9000:9000"
+    networks:
+      - akaunting
+    depends_on:
       - mysql
+  
+
+#  redis:
+#    container_name: redis
+#    image: redis:4.0-alpine
+#    command: redis-server --appendonly yes
+#    networks:
+#      - akaunting
+#    ports:
+#        - "6379:6379"
+
+#  elastic:
+#    image: elasticsearch:5.5-alpine
+#    ports:
+#        - "9200:9200"
