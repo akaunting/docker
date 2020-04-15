@@ -2,35 +2,22 @@ version: '3.7'
 
 services:
   nginx:
-    image: nginx
+    build: ./nginx
     ports:
       - 8080:80
     volumes:
       - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - .:/var/www/akaunting.test
+      - app-data:/var/www/akaunting
     restart: unless-stopped
-    networks:
-      akaunting:
-        aliases:
-          - akaunting.test
 
-  app:
+  php:
     build: ./php
-    user: "1000:1000"
-    expose:
-      - 9000
     volumes:
-      - .:/var/www/akaunting.test
+      - app-data:/var/www/akaunting
     restart: unless-stopped
-    environment:
-      APP_DEBUG: "true"
-    networks:
-      - akaunting
 
-  mysql:
-    image: mysql:5
-    ports:
-      - 3306:3306
+  db:
+    image: mysql:latest
     volumes:
       - db-data:/var/lib/mysql
     environment:
@@ -38,12 +25,18 @@ services:
       MYSQL_DATABASE: akaunting_db
       MYSQL_USER: akaunting_admin
       MYSQL_PASSWORD: akaunting_password
-    networks:
-      - akaunting
     command: --default-authentication-plugin=mysql_native_password
 
-volumes:
-  db-data:
 
-networks:
-  akaunting:
+#    image: postgres:alpine
+#    volumes:
+#      - db-data:/var/lib/postgresql/data
+#    environment:
+#      POSTGRES_DB: akaunting_db
+#      POSTGRES_USER: akaunting_admin
+#      POSTGRES_PASSWORD: akaunting_password
+#    ports:
+#        - "5432:5432"
+volumes:
+  app-data:
+  db-data:

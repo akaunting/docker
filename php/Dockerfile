@@ -1,9 +1,10 @@
-FROM php:7.2-fpm
+FROM php:7.4-fpm
 
 RUN apt-get update && apt-get install -y \
-    imagemagick \
     libfreetype6-dev \
     libjpeg62-turbo-dev \
+    libzip-dev \
+    imagemagick \
     libmcrypt-dev \
     libpng-dev \
     libpq-dev \
@@ -13,24 +14,20 @@ RUN apt-get update && apt-get install -y \
     patch \
     unzip \
     zlib1g-dev \
+    zip \
     --no-install-recommends && \
     apt-get clean && rm -rf /var/lib/apt/lists/*
+
+RUN docker-php-ext-configure gd --with-freetype --with-jpeg
 
 RUN cp /usr/share/i18n/SUPPORTED /etc/locale.gen
 RUN locale-gen
 
-RUN docker-php-ext-configure gd --with-freetype-dir=/usr/include/ --with-jpeg-dir=/usr/include/
-
 RUN docker-php-ext-install \
     gd \
+    bcmath \
     pcntl \
+    pdo \
+    pdo_pgsql \
     pdo_mysql \
     zip
-
-RUN pecl channel-update pecl.php.net \
-    && printf "\n" | pecl install mcrypt-1.0.2 \
-    && printf "\n" | pecl install xdebug-2.7.2 \
-    && docker-php-ext-enable mcrypt xdebug
-
-COPY conf/xdebug.ini /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
-COPY conf/zz-docker.conf /usr/local/etc/php-fpm.d/zz-docker.conf
