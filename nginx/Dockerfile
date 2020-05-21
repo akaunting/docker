@@ -1,6 +1,6 @@
 FROM nginx:alpine
 
-ENV AKAUNTING_VERSION 2.0.11
+ENV AKAUNTING_VERSION 2.0.12
 
 RUN apk update && apk add --no-progress -q wget unzip
 
