@@ -7,4 +7,5 @@ RUN mkdir -p /var/www/akaunting
 RUN unzip akaunting.zip -d /var/www/akaunting
 RUN rm akaunting.zip
 
-RUN chmod -R 777 /var/www/akaunting
+RUN find /var/www/akaunting/ -type d -exec chmod 755 {} \;
+RUN find /var/www/akaunting/ -type f -exec chmod 644 {} \;
