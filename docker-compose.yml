@@ -1,42 +1,35 @@
 version: '3.7'
 
 services:
-  nginx:
-    build: ./nginx
+
+  akaunting:
+    image: docker.io/akaunting/akaunting:latest
+    build:
+      context: .
     ports:
       - 8080:80
     volumes:
-      - ./nginx/conf.d:/etc/nginx/conf.d:ro
-      - app-data:/var/www/akaunting
+      - akaunting-data:/var/www/html/storage
     restart: unless-stopped
-
-  php:
-    build: ./php
-    volumes:
-      - app-data:/var/www/akaunting
-    restart: unless-stopped
-
-  db:
-    image: mysql:latest
-    volumes:
-      - db-data:/var/lib/mysql
+    env_file:
+      - env/run.env
     environment:
-      MYSQL_ROOT_PASSWORD: akaunting_root_password
-      MYSQL_DATABASE: akaunting_db
-      MYSQL_USER: akaunting_admin
-      MYSQL_PASSWORD: akaunting_password
-    command: --default-authentication-plugin=mysql_native_password
+      - AKAUNTING_SETUP
 
+  akaunting-db:
+    image: mariadb
+    volumes:
+      - akaunting-db:/var/lib/mysql
+    restart: unless-stopped
+    env_file:
+      - env/db.env
 
-#    image: postgres:alpine
-#    volumes:
-#      - db-data:/var/lib/postgresql/data
-#    environment:
-#      POSTGRES_DB: akaunting_db
-#      POSTGRES_USER: akaunting_admin
-#      POSTGRES_PASSWORD: akaunting_password
-#    ports:
-#        - "5432:5432"
+  akaunting-update:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup akaunting akaunting-db
+
 volumes:
-  app-data:
-  db-data:
+  akaunting-data:
+  akaunting-db:
