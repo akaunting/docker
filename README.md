@@ -93,3 +93,7 @@ A robust TLS termination and load-balancing setup should outperform, and be easi
 ## Languages
 
 Right now, the only built language is US English. If you would like more supported locales to be built into the container image, please [open an issue](https://github.com/akaunting/docker/issues).
+
+## License
+
+Akaunting is released under the [GPLv3 license](LICENSE.txt).
