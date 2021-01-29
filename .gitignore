@@ -1,0 +1,4 @@
+db.env
+run.env
+tags
+*.swp

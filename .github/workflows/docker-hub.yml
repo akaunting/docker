@@ -1,0 +1,44 @@
+name: Publish Docker image
+
+on:
+  schedule:
+    - cron: '0 10 * * *' # everyday at 10am
+  push:
+    branches:
+      - '**'
+  pull_request:
+
+jobs:
+  docker:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Define tags
+        id: define-tags
+        run: |
+          if [ "${GITHUB_REF}" == "refs/heads/master" -a "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            curl -s https://api.github.com/repos/akaunting/akaunting/releases/latest \
+              | jq -r .tag_name | sed \
+                -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1,\2,\3,/' \
+                -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
+                -e 's/^/::set-output name=tags::/' \
+                -e 's/$/akaunting\/akaunting:latest/'
+          else
+            echo -n "::set-output name=tags::akaunting/akaunting:"
+            echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_'
+          fi
+      - name: Login to DockerHub
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@v1
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Build and push
+        uses: docker/build-push-action@v2
+        with:
+          context: .
+          file: ./Dockerfile
+          platforms: linux/amd64
+          push: ${{ github.event_name != 'pull_request' }}
+          tags: ${{ steps.define-tags.outputs.tags }}
