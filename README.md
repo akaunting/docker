@@ -27,7 +27,7 @@ vi env/run.env # and set things
 AKAUNTING_SETUP=true docker-compose up -d
 ```
 
-Then head to HTTP at port 8080 on the docker-compose hostand finish configuring your Akaunting company through the interactive wizard.
+Then head to HTTP at port 8080 on the docker-compose host and finish configuring your Akaunting company through the interactive wizard.
 
 After setup is complete, bring the containers down before bringing them back up without the setup variable.
 
