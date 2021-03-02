@@ -44,7 +44,7 @@ You could use something like the following commands to make backups for your dep
 
 ```shell
 mkdir -p ~/backups
-for volume in akaunting-data akaunting-db; do
+for volume in akaunting-data akaunting-modules akaunting-db; do
     docker run --rm -v $volume:/volume -v ~/backups:/backups alpine tar cvzf /backups/$volume-$(date +%Y-%m-%d).tgz -C /volume ./
 done
 ```
@@ -53,7 +53,7 @@ In order to restore those backups, you would run something like:
 
 ```shell
 backup=2021-01-26 # you should select the backup you want to restore here
-for volume in akaunting-data akaunting-db; do
+for volume in akaunting-data akaunting-modules akaunting-db; do
     docker run --rm -v $volume:/volume -v ~/backups:/backups alpine sh -c "rm -rf /volume/* /volume/..?* /volume/.[!.]* ; tar xvzf /backups/$volume-$backup.tgz -C /volume"
 done
 ```
