@@ -10,6 +10,7 @@ services:
       - 8080:80
     volumes:
       - akaunting-data:/var/www/html/storage
+      - akaunting-modules:/var/www/html/modules
     restart: unless-stopped
     env_file:
       - env/run.env
@@ -34,4 +35,5 @@ services:
 
 volumes:
   akaunting-data:
+  akaunting-modules:
   akaunting-db:
