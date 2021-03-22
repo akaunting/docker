@@ -94,6 +94,20 @@ A robust TLS termination and load-balancing setup should outperform, and be easi
 
 Right now, the only built language is US English. If you would like more supported locales to be built into the container image, please [open an issue](https://github.com/akaunting/docker/issues).
 
+## Extra ways to explore containerized Akaunting!
+This repository contains extra compose and other files that allows you to run Akaunting in different setups like using FPM and NGINX and here is the most important commands that you may need:
+
+```shell
+# Run Akaunting with FPM on Debian and use Nginx as external proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-docker-compose.yml up --build
+
+# Run Akaunting using FPM on Alpine and using Nginx as external proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-docker-compose.yml -f fpm-alpine-docker-compose.yml up --build
+
+# Run Akaunting using FPM on Alpine and using Nginx as internal proxy
+AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml up --build
+```
+
 ## License
 
 Akaunting is released under the [GPLv3 license](LICENSE.txt).

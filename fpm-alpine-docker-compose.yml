@@ -1,0 +1,10 @@
+version: '3.7'
+
+services:
+
+  akaunting:
+    build:
+      dockerfile: fpm-alpine.Dockerfile
+      context: .
+  akaunting-proxy:
+    image: nginx:1.19.0-alpine
