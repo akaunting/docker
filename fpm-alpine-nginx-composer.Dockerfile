@@ -11,6 +11,10 @@ RUN rm -f /etc/apk/repositories &&\
 
 # Add Dependencies
 RUN apk add --update --no-cache \
+    gcc \
+    g++ \
+    make \
+    python2 \
     nano \
     bash \
     nodejs \
