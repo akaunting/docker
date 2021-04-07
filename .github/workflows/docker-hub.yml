@@ -1,4 +1,4 @@
-name: Publish Docker image
+name: Publish Docker images
 
 on:
   schedule:
@@ -11,22 +11,58 @@ on:
 jobs:
   docker:
     runs-on: ubuntu-20.04
+    strategy:
+      matrix:
+        image: ['', fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer]
+        include:
+          - image: ''
+            file: Dockerfile
+          - image: fpm
+            file: fpm.Dockerfile
+          - image: fpm-alpine
+            file: fpm-alpine.Dockerfile
+          - image: fpm-alpine-nginx
+            file: fpm-alpine-nginx.Dockerfile
+          - image: fpm-alpine-nginx-composer
+            file: fpm-alpine-nginx-composer.Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@v2
-      - name: Define tags
-        id: define-tags
+      - name: Define tag name
+        id: tag-name
         run: |
           if [ "${GITHUB_REF}" == "refs/heads/master" -a "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
             curl -s https://api.github.com/repos/akaunting/akaunting/releases/latest \
               | jq -r .tag_name | sed \
-                -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1,\2,\3,/' \
-                -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
-                -e 's/^/::set-output name=tags::/' \
-                -e 's/$/akaunting\/akaunting:latest/'
+            -e 's/^/::set-output name=tag::/'
           else
-            echo -n "::set-output name=tags::akaunting/akaunting:"
+            echo -n "::set-output name=tag::"
             echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_'
+          fi
+      - name: Define images tags
+        id: image-tags
+        run: |
+          if [ "${GITHUB_REF}" == "refs/heads/master" -a "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
+            if [ -z ${{ matrix.image }} ]; then
+              echo ${{ steps.tag-name.outputs.tag }} | sed \
+                  -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1,\2,\3,/' \
+                  -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
+                  -e 's/^/::set-output name=tags::/' \
+                  -e 's/$/akaunting\/akaunting:latest/'
+            else
+              echo ${{ steps.tag-name.outputs.tag }} | sed \
+                -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1-${{ matrix.image }},\2-${{ matrix.image }},\3-${{ matrix.image }},/' \
+                -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
+                -e 's/^/::set-output name=tags::/'
+            fi
+          else
+            if [ -z ${{ matrix.image }} ]; then
+              echo -n "::set-output name=tags::akaunting/akaunting:"
+              echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_'
+            else
+              echo -n "::set-output name=tags::akaunting/akaunting:"
+              echo "$(echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_')-${{ matrix.image }}"
+            fi
           fi
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
@@ -38,11 +74,11 @@ jobs:
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
-      - name: Build and push
+      - name: Build and push images
         uses: docker/build-push-action@v2
         with:
           context: .
-          file: ./Dockerfile
+          file: ./${{ matrix.file }}
           platforms: linux/amd64,linux/arm/v6,linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
-          tags: ${{ steps.define-tags.outputs.tags }}
+          tags: ${{ steps.image-tags.outputs.tags }}
