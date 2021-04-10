@@ -3,7 +3,6 @@ version: '3.7'
 services:
 
   akaunting:
-    image: docker.io/akaunting/akaunting:latest
     build:
       dockerfile: fpm.Dockerfile
       context: .
