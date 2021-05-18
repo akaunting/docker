@@ -3,6 +3,7 @@ version: '3.7'
 services:
 
   akaunting:
+    container_name: akaunting
     build:
       dockerfile: fpm.Dockerfile
       context: .
@@ -27,6 +28,7 @@ services:
       - ./nginx/templates:/etc/nginx/templates
 
   akaunting-db:
+    container_name: akaunting-db
     image: mariadb
     volumes:
       - akaunting-db:/var/lib/mysql

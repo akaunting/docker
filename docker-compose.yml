@@ -3,6 +3,7 @@ version: '3.7'
 services:
 
   akaunting:
+    container_name: akaunting
     image: docker.io/akaunting/akaunting:latest
     build:
       context: .
@@ -20,6 +21,7 @@ services:
       - akaunting-db
 
   akaunting-db:
+    container_name: akaunting-db
     image: mariadb
     volumes:
       - akaunting-db:/var/lib/mysql
