@@ -37,6 +37,10 @@ RUN curl -sS https://getcomposer.org/installer -o composer-setup.php
 RUN php composer-setup.php --install-dir=/usr/local/bin --filename=composer
 RUN rm -rf composer-setup.php
 
+# Clear npm proxy
+RUN npm config rm proxy
+RUN npm config rm https-proxy
+
 # Download Akaunting application
 RUN mkdir -p /var/www/html
 RUN cd /var/www/html && git clone https://github.com/akaunting/akaunting.git . && composer install && npm install && npm run dev
