@@ -32,7 +32,7 @@ Then head to HTTP at port 8080 on the docker-compose host and finish configuring
 After setup is complete, bring the containers down before bringing them back up without the setup variable.
 
 ```shell
-docker-compose down -v
+docker-compose down
 docker-compose up -d
 ```
 
