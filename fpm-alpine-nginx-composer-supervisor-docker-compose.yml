@@ -1,0 +1,7 @@
+version: '3.7'
+services:
+
+  akaunting:
+    build:
+      dockerfile: fpm-alpine-nginx-composer-supervisor.Dockerfile
+      context: .

@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        image: ['', fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer]
+        image: ['', fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer, fpm-alpine-nginx-composer-supervisor]
         include:
           - image: ''
             file: Dockerfile
@@ -25,6 +25,8 @@ jobs:
             file: fpm-alpine-nginx.Dockerfile
           - image: fpm-alpine-nginx-composer
             file: fpm-alpine-nginx-composer.Dockerfile
+          - image: fpm-alpine-nginx-composer-supervisor
+            file: fpm-alpine-nginx-composer-supervisor.Dockerfile
     steps:
       - name: Checkout
         uses: actions/checkout@v2
@@ -86,7 +88,7 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.image-tags.outputs.tags }}
       - name: Build and push images
-        if: matrix.image == 'fpm-alpine-nginx-composer'
+        if: matrix.image == 'fpm-alpine-nginx-composer' || matrix.image == 'fpm-alpine-nginx-composer-supervisor'
         uses: docker/build-push-action@v2
         with:
           context: .
