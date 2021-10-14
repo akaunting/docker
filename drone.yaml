@@ -1,0 +1,41 @@
+---
+kind: pipeline
+type: kubernetes
+name: akaunting 
+
+steps:
+# - name: build-push
+#   image: docker:dind
+#   volumes:
+#   - name: dockersock
+#     path: /var/run
+#   commands:
+#   - sleep 5 ## give docker enough time to start
+#   - docker build ./test -t europe-west3-docker.pkg.dev/tribal-pride-325408/exadel-sandbox/nginx:v1
+#   - docker push europe-west3-docker.pkg.dev/tribal-pride-325408/exadel-sandbox/nginx:v1
+
+- name: publish  
+  image: plugins/gcr
+  settings:
+    # dockerfile: ./test/Dockerfile
+    registry: europe-west3-docker.pkg.dev/tribal-pride-325408
+    repo: exadel-sandbox/akaunting
+    tags: v1
+    json_key:
+      from_secret: credentials
+
+trigger:
+  event:
+  - pull_request
+  - tag
+
+# services:
+# - name: docker
+#   image: docker:dind
+#   privileged: true
+#   volumes:
+#   - name: dockersock
+#     path: /var/run
+# volumes:
+# - name: dockersock 
+#   temp: {}
