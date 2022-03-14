@@ -30,6 +30,7 @@ if [ "$do_setup" -o "$AKAUNTING_SETUP" == "true" ]; then
     while sleep $retry_interval; do
         if php artisan install \
             --db-host=$DB_HOST \
+            --db-port=$DB_PORT \
             --db-name=$DB_DATABASE \
             --db-username=$DB_USERNAME \
             "--db-password=$DB_PASSWORD" \
