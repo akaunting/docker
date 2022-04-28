@@ -34,7 +34,7 @@ if [ "$do_setup" -o "$AKAUNTING_SETUP" == "true" ]; then
             --db-host=$DB_HOST \
             --db-name=$DB_DATABASE \
             --db-username=$DB_USERNAME \
-            "--db-password=$DB_PASSWORD" \
+            --db-password=$DB_PASSWORD \
             --db-prefix=$DB_PREFIX \
             "--company-name=$COMPANY_NAME" \
             "--company-email=$COMPANY_EMAIL" \
