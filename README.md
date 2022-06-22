@@ -98,6 +98,9 @@ Right now, the only built language is US English. If you would like more support
 This repository contains extra compose and other files that allows you to run Akaunting in different setups like using FPM and NGINX and here is the most important commands that you may need:
 
 ```shell
+# Run Akaunting setup that checks for volume files before copying them.
+AKAUNTING_SETUP=true docker-compose -f v-docker-compose.yml up --build
+
 # Run Akaunting with FPM on Debian and use Nginx as external proxy
 AKAUNTING_SETUP=true docker-compose -f fpm-docker-compose.yml up --build
 

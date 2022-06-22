@@ -1,0 +1,39 @@
+version: '3.7'
+
+services:
+
+  akaunting:
+    container_name: akaunting
+    build:
+      dockerfile: v.Dockerfile
+      context: .
+    ports:
+      - 8080:80
+    volumes:
+      - akaunting-data:/var/www/html
+    restart: unless-stopped
+    env_file:
+      - env/run.env
+    environment:
+      - AKAUNTING_SETUP
+    depends_on:
+      - akaunting-db
+
+  akaunting-db:
+    container_name: akaunting-db
+    image: mariadb
+    volumes:
+      - akaunting-db:/var/lib/mysql
+    restart: unless-stopped
+    env_file:
+      - env/db.env
+
+  akaunting-update:
+    image: containrrr/watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    command: --cleanup akaunting akaunting-db
+
+volumes:
+  akaunting-data:
+  akaunting-db:

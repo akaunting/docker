@@ -13,12 +13,14 @@ jobs:
     runs-on: ubuntu-20.04
     strategy:
       matrix:
-        image: ['', fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer, fpm-alpine-nginx-composer-supervisor]
+        image: ['', v, fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer, fpm-alpine-nginx-composer-supervisor]
         include:
           - image: ''
             file: Dockerfile
           - image: fpm
             file: fpm.Dockerfile
+          - image: v
+            file: v.Dockerfile
           - image: fpm-alpine
             file: fpm-alpine.Dockerfile
           - image: fpm-alpine-nginx
@@ -67,10 +69,10 @@ jobs:
             fi
           fi
       - name: Set up QEMU
-        if: matrix.image == '' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
+        if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
         uses: docker/setup-qemu-action@v1
       - name: Set up Docker Buildx
-        if: matrix.image == '' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
+        if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
         uses: docker/setup-buildx-action@v1
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
@@ -79,7 +81,7 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push images
-        if: matrix.image == '' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
+        if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
         uses: docker/build-push-action@v2
         with:
           context: .
