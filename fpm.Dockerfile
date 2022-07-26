@@ -47,7 +47,7 @@ RUN docker-php-ext-configure gd \
    zip
 
 # Download Akaunting application
-RUN mkdir -p /var/www/akaunting \
+RUN mkdir -p /var/www/html \
    && curl -Lo /tmp/akaunting.zip 'https://akaunting.com/download.php?version=latest&utm_source=docker&utm_campaign=developers' \
    && unzip /tmp/akaunting.zip -d /var/www/html \
    && rm -f /tmp/akaunting.zip
