@@ -10,7 +10,7 @@ if [ "$AKAUNTING_SETUP" == "true" ]; then
         if php artisan install \
             --db-host=$DB_HOST \
             --db-port=$DB_PORT \
-            --db-name=$DB_DATABASE \
+            --db-name=$DB_NAME \
             --db-username=$DB_USERNAME \
             "--db-password=$DB_PASSWORD" \
             --db-prefix=$DB_PREFIX \
