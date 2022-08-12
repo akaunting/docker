@@ -36,9 +36,17 @@ mkdir -p storage/app/uploads
 if [ "$do_setup" -o "$AKAUNTING_SETUP" == "true" ]; then
     retry_for=30
     retry_interval=5
+
+    if [[ -z "${DB_HOST_WRITE}" ]]; then
+    db_host="${DB_HOST}"
+    else
+    db_host="${DB_HOST_WRITE}"
+    fi
+
+
     while sleep $retry_interval; do
         if php artisan install \
-            --db-host=$DB_HOST \
+            --db-host=$db_host \
             --db-port=$DB_PORT \
             --db-name=$DB_NAME \
             --db-username=$DB_USERNAME \
