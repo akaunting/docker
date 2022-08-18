@@ -43,8 +43,7 @@ RUN docker-php-ext-configure gd \
     pcntl \
     pdo \
     pdo_mysql \
-    zip \
-    redis
+    zip
 
 RUN curl -Lo /tmp/akaunting.zip 'https://akaunting.com/download.php?version=latest&utm_source=docker&utm_campaign=developers'
 
