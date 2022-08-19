@@ -45,6 +45,8 @@ RUN docker-php-ext-configure gd \
     pdo_mysql \
     zip
 
+RUN pecl install redis && docker-php-ext-enable redis
+
 RUN curl -Lo /tmp/akaunting.zip 'https://akaunting.com/download.php?version=latest&utm_source=docker&utm_campaign=developers'
 
 COPY files/akaunting-v.sh /usr/local/bin/akaunting-v.sh
