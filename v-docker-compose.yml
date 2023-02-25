@@ -28,12 +28,6 @@ services:
     env_file:
       - env/db.env
 
-  akaunting-update:
-    image: containrrr/watchtower
-    volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
-    command: --cleanup akaunting akaunting-db
-
 volumes:
   akaunting-data:
   akaunting-db:
