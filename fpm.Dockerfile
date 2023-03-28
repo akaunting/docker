@@ -44,6 +44,7 @@ RUN docker-php-ext-configure gd \
    pcntl \
    pdo \
    pdo_mysql \
+   pdo_pgsql \
    zip
 
 # Download Akaunting application
