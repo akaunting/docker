@@ -80,6 +80,8 @@ AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml -f fp
 
 [Easypanel](https://easypanel.io/) can deploy Akaunting with one click using its [official template](https://easypanel.io/templates/akaunting), provisioning the required MySQL database automatically.
 
+![Akaunting deployed on Easypanel](docs/easypanel_deployed.png)
+
 ## License
 
 Akaunting is released under the [GPLv3 license](LICENSE.txt).
