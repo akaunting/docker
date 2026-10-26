@@ -13,6 +13,7 @@ jobs:
   docker:
     runs-on: ubuntu-22.04
     strategy:
+      fail-fast: false
       matrix:
         image: ['', v, fpm, fpm-alpine, fpm-alpine-nginx, fpm-alpine-nginx-composer, fpm-alpine-nginx-composer-supervisor]
         include:
