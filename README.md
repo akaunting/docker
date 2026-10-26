@@ -53,6 +53,35 @@ SESSION_DRIVER: "redis"
 QUEUE_CONNECTION: "redis"
 ```
 
+## Upgrading
+
+The application files live in the `akaunting-data` volume, so pulling a newer image updates PHP and the system packages but **not** Akaunting itself. Upgrade Akaunting from inside the running container instead.
+
+> Akaunting 3.2 and later require PHP 8.2. Always switch to the new image **before** upgrading Akaunting. Upgrading Akaunting on an old PHP 8.1 image leaves the application unable to start.
+
+1. Back up your database:
+
+    ```shell
+    docker exec akaunting-db sh -c 'exec mariadb-dump -u"$MYSQL_USER" -p"$MYSQL_PASSWORD" "$MYSQL_DATABASE"' > akaunting-backup.sql
+    ```
+
+2. Pull the new image and recreate the container:
+
+    ```shell
+    docker-compose pull
+    docker-compose up -d
+    ```
+
+3. Upgrade Akaunting and its installed apps:
+
+    ```shell
+    docker exec -u www-data akaunting php artisan update:all
+    ```
+
+    You can also do this step from **Settings > Updates** in the Akaunting web interface.
+
+Do not just copy the new files over the old ones and run `php artisan migrate`. Some versions also update existing data during the upgrade, and that step only runs through the updater.
+
 ## Extra ways to explore containerized Akaunting!
 This repository contains extra compose and other files that allows you to run Akaunting in different setups like using FPM and NGINX and here is the most important commands that you may need:
 
