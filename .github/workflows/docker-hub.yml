@@ -7,6 +7,7 @@ on:
     branches:
       - '**'
   pull_request:
+  workflow_dispatch:
 
 jobs:
   docker:
@@ -31,17 +32,17 @@ jobs:
             file: fpm-alpine-nginx-composer-supervisor.Dockerfile
     steps:
       - name: Checkout
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
       - name: Define tag name
         id: tag-name
         run: |
           if [ "${GITHUB_REF}" == "refs/heads/master" -a "${GITHUB_EVENT_NAME}" != "pull_request" ]; then
             curl -s https://api.github.com/repos/akaunting/akaunting/releases/latest \
               | jq -r .tag_name | sed \
-            -e 's/^/::set-output name=tag::/'
+            -e 's/^/tag=/' >> "$GITHUB_OUTPUT"
           else
-            echo -n "::set-output name=tag::"
-            echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_'
+            echo -n "tag=" >> "$GITHUB_OUTPUT"
+            echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_' >> "$GITHUB_OUTPUT"
           fi
       - name: Define images tags
         id: image-tags
@@ -51,38 +52,38 @@ jobs:
               echo ${{ steps.tag-name.outputs.tag }} | sed \
                   -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1,\2,\3,/' \
                   -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
-                  -e 's/^/::set-output name=tags::/' \
-                  -e 's/$/akaunting\/akaunting:latest/'
+                  -e 's/^/tags=/' \
+                  -e 's/$/akaunting\/akaunting:latest/' >> "$GITHUB_OUTPUT"
             else
               echo ${{ steps.tag-name.outputs.tag }} | sed \
                 -e 's/\(\(\([0-9]\+\)\.[0-9]\+\)\.[0-9]\+\)/\1-${{ matrix.image }},\2-${{ matrix.image }},\3-${{ matrix.image }},/' \
                 -e 's/\([^,]\+\),/akaunting\/akaunting:\1,/g' \
-                -e 's/^/::set-output name=tags::/'
+                -e 's/^/tags=/' >> "$GITHUB_OUTPUT"
             fi
           else
             if [ -z ${{ matrix.image }} ]; then
-              echo -n "::set-output name=tags::akaunting/akaunting:"
-              echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_'
+              echo -n "tags=akaunting/akaunting:" >> "$GITHUB_OUTPUT"
+              echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_' >> "$GITHUB_OUTPUT"
             else
-              echo -n "::set-output name=tags::akaunting/akaunting:"
-              echo "$(echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_')-${{ matrix.image }}"
+              echo -n "tags=akaunting/akaunting:" >> "$GITHUB_OUTPUT"
+              echo "$(echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_')-${{ matrix.image }}" >> "$GITHUB_OUTPUT"
             fi
           fi
       - name: Set up QEMU
         if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
-        uses: docker/setup-qemu-action@v2
+        uses: docker/setup-qemu-action@v3
       - name: Set up Docker Buildx
         if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
       - name: Login to DockerHub
         if: github.event_name != 'pull_request'
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       - name: Build and push images
         if: matrix.image == '' || matrix.image == 'v' || matrix.image == 'fpm' || matrix.image == 'fpm-alpine' || matrix.image == 'fpm-alpine-nginx'
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./${{ matrix.file }}
@@ -91,7 +92,7 @@ jobs:
           tags: ${{ steps.image-tags.outputs.tags }}
       - name: Build and push images
         if: matrix.image == 'fpm-alpine-nginx-composer' || matrix.image == 'fpm-alpine-nginx-composer-supervisor'
-        uses: docker/build-push-action@v3
+        uses: docker/build-push-action@v6
         with:
           context: .
           file: ./${{ matrix.file }}

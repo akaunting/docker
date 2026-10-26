@@ -1,4 +1,4 @@
-FROM php:8.1-fpm
+FROM php:8.2.35-fpm
 
 # Arguments defined in docker-compose.yml
 ARG AKAUNTING_DOCKERFILE_VERSION=0.1
