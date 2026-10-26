@@ -1,4 +1,4 @@
-FROM php:8.1-fpm-alpine3.15
+FROM php:8.2.35-fpm-alpine3.24
 
 # Arguments defined in docker-compose.yml
 ARG AKAUNTING_DOCKERFILE_VERSION=0.1
@@ -6,8 +6,8 @@ ARG SUPPORTED_LOCALES="en_US.UTF-8"
 
 # Add Repositories
 RUN rm -f /etc/apk/repositories &&\
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.15/main" >> /etc/apk/repositories && \
-    echo "http://dl-cdn.alpinelinux.org/alpine/v3.15/community" >> /etc/apk/repositories
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.24/main" >> /etc/apk/repositories && \
+    echo "http://dl-cdn.alpinelinux.org/alpine/v3.24/community" >> /etc/apk/repositories
 
 # Add Dependencies
 RUN apk add --update --no-cache \
@@ -18,10 +18,14 @@ RUN apk add --update --no-cache \
     supervisor \
     vim \
     bash \
-    nodejs \
-    npm \
     git \
     nginx
+
+# Add Node.js 20 (Akaunting requires node >=18 <21 and node-sass does not build on the Node.js 24 shipped by Alpine 3.24)
+COPY --from=node:20.20.2-alpine3.23 /usr/local/bin/node /usr/local/bin/node
+COPY --from=node:20.20.2-alpine3.23 /usr/local/lib/node_modules /usr/local/lib/node_modules
+RUN ln -s ../lib/node_modules/npm/bin/npm-cli.js /usr/local/bin/npm \
+    && ln -s ../lib/node_modules/npm/bin/npx-cli.js /usr/local/bin/npx
 
 ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/download/install-php-extensions /usr/local/bin/
 
