@@ -3,6 +3,8 @@ FROM php:8.2.35-fpm-alpine3.24
 # Arguments defined in docker-compose.yml
 ARG AKAUNTING_DOCKERFILE_VERSION=0.1
 ARG SUPPORTED_LOCALES="en_US.UTF-8"
+# Akaunting branch or tag to build, the workflow passes the latest release
+ARG AKAUNTING_REF=master
 
 # Add Repositories
 RUN rm -f /etc/apk/repositories &&\
@@ -52,7 +54,7 @@ RUN mkdir -p /var/www/html
 # Setup Working Dir
 WORKDIR /var/www/html
 
-RUN git clone https://github.com/akaunting/akaunting.git .
+RUN git clone --depth 1 --branch "${AKAUNTING_REF}" https://github.com/akaunting/akaunting.git .
 RUN chown -R www-data:www-data /var/www/html
 USER www-data
 RUN composer prod

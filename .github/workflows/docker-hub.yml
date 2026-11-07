@@ -9,6 +9,10 @@ on:
   pull_request:
   workflow_dispatch:
 
+# Images are pushed with the Docker Hub secrets, the GitHub token only reads
+permissions:
+  contents: read
+
 jobs:
   docker:
     runs-on: ubuntu-22.04
@@ -49,9 +53,11 @@ jobs:
               exit 1
             fi
             echo "tag=${tag}" >> "$GITHUB_OUTPUT"
+            echo "akaunting-ref=${tag}" >> "$GITHUB_OUTPUT"
           else
             echo -n "tag=" >> "$GITHUB_OUTPUT"
             echo "$GITHUB_REF" | cut -d/ -f3- | tr '/' '_' >> "$GITHUB_OUTPUT"
+            echo "akaunting-ref=master" >> "$GITHUB_OUTPUT"
           fi
       - name: Define images tags
         id: image-tags
@@ -108,3 +114,5 @@ jobs:
           platforms: linux/amd64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.image-tags.outputs.tags }}
+          build-args: |
+            AKAUNTING_REF=${{ steps.tag-name.outputs.akaunting-ref }}
