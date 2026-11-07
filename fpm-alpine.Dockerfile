@@ -35,7 +35,7 @@ ADD https://github.com/mlocati/docker-php-extension-installer/releases/latest/do
 
 # Install PHP Extensions
 RUN chmod +x /usr/local/bin/install-php-extensions && sync && \
-    install-php-extensions gd zip intl imap xsl pgsql opcache bcmath mysqli pdo_mysql redis pcntl
+    install-php-extensions gd zip intl imap xsl pgsql opcache bcmath mysqli pdo_mysql pdo_pgsql redis pcntl
 
 # Configure Extension
 RUN docker-php-ext-configure \

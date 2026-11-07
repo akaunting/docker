@@ -40,6 +40,22 @@ DB_HOST_WRITE: "example-write"
 DB_HOST_READ: "example-read"
 ```
 
+To use PostgreSQL instead of MySQL/MariaDB, point the `DB_*` variables at your PostgreSQL server and set the driver:
+
+```
+# In env/run.env put:
+DB_CONNECTION=pgsql
+DB_PORT=5432
+```
+
+During setup the container retries the installation for 30 seconds, every 5 seconds, until the database is reachable, and then exits with `Unable to find database!`. If your database takes longer to start (for example on Kubernetes), raise the timeout:
+
+```
+# In env/run.env put:
+AKAUNTING_SETUP_TIMEOUT=300
+AKAUNTING_SETUP_RETRY_INTERVAL=10
+```
+
 You can use Redis with Akaunting for performance enhancement and scalability, if you have a Redis you can take advantage of the following environment variables:
 
 ```
