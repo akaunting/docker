@@ -4,7 +4,8 @@ services:
 
   akaunting:
     container_name: akaunting
-    image: docker.io/akaunting/akaunting:latest
+    #image: docker.io/akaunting/akaunting:latest
+    image: ghcr.io/akaunting/docker/akaunting:latest
     build:
       context: .
     ports:

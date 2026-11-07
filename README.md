@@ -104,6 +104,8 @@ AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml -f fp
 # Download Akaunting using git and install composer and npm and run Akaunting using FPM on Alpine and using Nginx as internal proxy and supervisor to manage the queues
 AKAUNTING_SETUP=true docker-compose -f fpm-alpine-nginx-docker-compose.yml -f fpm-alpine-nginx-composer-supervisor-docker-compose.yml up --build
 ```
+## Kubernetes
+See kubernetes folder
 
 ## License
 

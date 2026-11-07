@@ -1,0 +1,181 @@
+apiVersion: v1
+kind: Secret
+metadata:
+  name: akaunting-secrets
+type: Opaque
+stringData:
+  ADMIN_PASSWORD: Change-me
+
+---
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: akaunting
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: akaunting
+  template:
+    metadata:
+      labels:
+        app: akaunting
+    spec:
+      nodeSelector:
+        kubernetes.io/hostname: node_1
+        
+      containers:
+
+# Akaunting container
+      - name: akaunting
+        image: ghcr.io/akaunting/docker/akaunting:latest
+        env:
+        - name: APP_INSTALLED
+          value: "false"
+        - name: AKAUNTING_SETUP
+          value: "true"
+        - name: APP_URL
+          value: "https://akaunting.mydomain.com"
+        - name: LOCALE
+          value: "en-GB"
+        - name: DB_HOST
+          value: "mariadb"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "akaunting"
+        - name: DB_DATABASE
+          value: "akaunting"
+        - name: DB_USERNAME
+          value: "akaunting"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secret
+              key: akaunting-password
+        - name: DB_PREFIX
+          value: "asd_"
+        - name: PHP_MEMORY_LIMIT
+          value: "256M"
+
+        - name: COMPANY_NAME
+          value: "Business Name"
+        - name: COMPANY_EMAIL
+          value: "contact@mydomain.com"
+        - name: ADMIN_EMAIL
+          value: "admin@mydomain.com"
+        - name: ADMIN_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: akaunting-secrets
+              key: ADMIN_PASSWORD
+
+        # Redis
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_DB
+          value: "1"
+        - name: REDIS_DATABASE
+          value: "1"
+        - name: CACHE_DRIVER
+          value: "redis"
+        - name: SESSION_DRIVER
+          value: "redis"
+        - name: QUEUE_CONNECTION
+          value: "redis"
+        
+        volumeMounts:
+        - name: storage
+          mountPath: /var/www/html/storage
+
+# Worker container
+      - name: akaunting-worker
+        image: ghcr.io/akaunting/docker/akaunting:latest
+        args:
+        - --queue-worker
+        env:
+        - name: APP_INSTALLED
+          value: "false"
+        - name: AKAUNTING_SETUP
+          value: "true"
+        - name: APP_URL
+          value: "https://akaunting.mydomain.com"
+        - name: LOCALE
+          value: "en-GB"
+        - name: DB_HOST
+          value: "mariadb"
+        - name: DB_PORT
+          value: "3306"
+        - name: DB_NAME
+          value: "akaunting"
+        - name: DB_DATABASE
+          value: "akaunting"
+        - name: DB_USERNAME
+          value: "akaunting"
+        - name: DB_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: mariadb-secret
+              key: akaunting-password
+        - name: DB_PREFIX
+          value: "asd_"
+
+        # Redis  
+        - name: REDIS_HOST
+          value: "redis"
+        - name: REDIS_PORT
+          value: "6379"
+        - name: REDIS_DB
+          value: "1"
+        - name: REDIS_DATABASE
+          value: "1"
+        - name: CACHE_DRIVER
+          value: "redis"
+        - name: SESSION_DRIVER
+          value: "redis"
+        - name: QUEUE_CONNECTION
+          value: "redis"
+        - name: PHP_MEMORY_LIMIT
+          value: "256M"
+        
+        volumeMounts:
+        - name: storage
+          mountPath: /var/www/html/storage
+     
+      volumes: 
+      - name: storage
+        hostPath:
+          path: /path/to/akaunting-data/storage
+          type: DirectoryOrCreate
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: akaunting
+spec:
+  selector:
+    app: akaunting
+  ports:
+  - port: 80
+    targetPort: 80
+
+---
+
+apiVersion: traefik.io/v1alpha1
+kind: IngressRoute
+metadata:
+  name: akaunting
+spec:
+  entryPoints:
+  - web
+  routes:
+  - match: Host(`akaunting.mydomain.com`)
+    kind: Rule
+    services:
+    - name: akaunting
+      port: 80

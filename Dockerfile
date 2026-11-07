@@ -45,10 +45,19 @@ RUN docker-php-ext-configure gd \
     pdo_mysql \
     zip
 
+RUN pecl install redis \
+    && docker-php-ext-enable redis
+
 RUN mkdir -p /var/www/akaunting \
- && curl -Lo /tmp/akaunting.zip 'https://akaunting.com/download.php?version=latest&utm_source=docker&utm_campaign=developers' \
- && unzip /tmp/akaunting.zip -d /var/www/html \
- && rm -f /tmp/akaunting.zip
+    && VERSION=$(curl -fsSL https://api.github.com/repos/akaunting/akaunting/releases/latest \
+        | grep '"tag_name"' \
+        | head -1 \
+        | cut -d '"' -f4) \
+    && echo "Downloading Akaunting ${VERSION}" \
+    && curl -fLo /tmp/akaunting.zip \
+        "https://github.com/akaunting/akaunting/releases/download/${VERSION}/Akaunting_${VERSION#v}-Stable.zip" \
+    && unzip /tmp/akaunting.zip -d /var/www/html \
+    && rm -f /tmp/akaunting.zip
 
 COPY files/akaunting.sh /usr/local/bin/akaunting.sh
 COPY files/html /var/www/html
